@@ -9,57 +9,46 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import javax.sql.DataSource;
 
-
-/**
- * 数据库连接池&Mybatis配置类
- *
- */
 @Configuration
-@MapperScan(basePackages = "com.duobi.manager.sys.dao", sqlSessionTemplateRef  = "serviceSqlSessionTemplate")
-public class DruidConfiguation {
+@MapperScan(basePackages = "com.duobi.manager.sys.testDao", sqlSessionTemplateRef  = "secondSqlSessionTemplate")
+public class DruidConfiguationSecondDataSource {
 
     private static String MYBATIS_CONFIG = "mybatis/mybatis-config.xml";
 
-    //配置第一数据源（默认数据源）
-    @Bean(name = "serviceDataSource")
-    @Qualifier("serviceDataSource")
-    @Primary
-    @ConfigurationProperties(prefix = "spring.datasource")
-    public DataSource druidDataSource() {
+    //配置第二数据源
+    @Bean(name = "secondDataSource")
+    @Qualifier("secondDataSource")
+    @ConfigurationProperties(prefix = "spring.seconddatasource")
+    public DataSource secondDruidDataSource() {
         DruidDataSource druidDataSource = new DruidDataSource();
         return druidDataSource;
     }
 
-    @Bean(name = "serviceTransactionManager")
-    @Primary
-    public DataSourceTransactionManager setTransactionManager(@Qualifier("serviceDataSource") DataSource dataSource) {
+    @Bean(name = "secondTransactionManager")
+    public DataSourceTransactionManager setTransactionManager(@Qualifier("secondDataSource") DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
 
-    @Bean(name = "serviceSqlSessionFactory")
-    @Primary
-    public SqlSessionFactory setSqlSessionFactory(@Qualifier("serviceDataSource") DataSource dataSource) throws Exception {
+    @Bean(name = "secondSqlSessionFactory")
+    public SqlSessionFactory setSqlSessionFactory(@Qualifier("secondDataSource") DataSource dataSource) throws Exception {
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
         /** 设置mybatis configuration 扫描路径 */
         bean.setConfigLocation(new ClassPathResource(MYBATIS_CONFIG));
         bean.setDataSource(dataSource);
-        bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:mybatis/mapper/sys/*.xml"));
+        bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:mybatis/mapper/second/*.xml"));
         return bean.getObject();
     }
 
-    @Bean(name = "serviceSqlSessionTemplate")
-    @Primary
-    public SqlSessionTemplate setSqlSessionTemplate(@Qualifier("serviceSqlSessionFactory") SqlSessionFactory sqlSessionFactory) throws Exception {
+    @Bean(name = "secondSqlSessionTemplate")
+    public SqlSessionTemplate setSqlSessionTemplate(@Qualifier("secondSqlSessionFactory") SqlSessionFactory sqlSessionFactory) throws Exception {
         return new SqlSessionTemplate(sqlSessionFactory);
     }
-
 
 
 

@@ -78,6 +78,7 @@ public class CheckLoginStatusFilter implements Filter {
         prefixIignores.add("/static/"); //静态资源
         prefixIignores.add("/font-awesome"); //静态资源
         prefixIignores.add("/favicon.ico"); //静态资源
+        prefixIignores.add("/druid"); //druid数据源监控地址
         for (String ignore : prefixIignores) {
             if (url.startsWith(ignore)) {
                 return true;

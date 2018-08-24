@@ -47,7 +47,7 @@
 
     <!-- 类型别名 -->
     <typeAliases>
-        <typeAlias alias="Page" type="com.ynsh.common.core.persistence.Page" /><!--分页  -->
+        <!--<typeAlias alias="Page" type="com.ynsh.common.core.persistence.Page" />&lt;!&ndash;分页  &ndash;&gt;-->
         <!--
         <typeAlias type="com.ynsh.ims.modules.lctj.entity.Product" alias="LcProduct" />
 
@@ -62,9 +62,9 @@
 
 
     <!-- 插件配置 -->
-    <plugins>
-        <plugin interceptor="com.ynsh.common.core.persistence.interceptor.PaginationInterceptor" />
-    </plugins>
+    <!--<plugins>-->
+        <!--<plugin interceptor="com.ynsh.common.core.persistence.interceptor.PaginationInterceptor" />-->
+    <!--</plugins>-->
     <!--<plugins>-->
     <!--<plugin interceptor="com.github.pagehelper.PageHelper">-->
     <!--<property name="dialect" value="postgresql" />-->
