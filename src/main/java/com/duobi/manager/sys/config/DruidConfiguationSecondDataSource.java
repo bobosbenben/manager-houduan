@@ -12,10 +12,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.TransactionManagementConfigurer;
 
 import javax.sql.DataSource;
 
 @Configuration
+@EnableTransactionManagement
 @MapperScan(basePackages = "com.duobi.manager.sys.testDao", sqlSessionTemplateRef  = "secondSqlSessionTemplate")
 public class DruidConfiguationSecondDataSource {
 
@@ -31,7 +35,7 @@ public class DruidConfiguationSecondDataSource {
     }
 
     @Bean(name = "secondTransactionManager")
-    public DataSourceTransactionManager setTransactionManager(@Qualifier("secondDataSource") DataSource dataSource) {
+    public PlatformTransactionManager secondTransactionManager(@Qualifier("secondDataSource") DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
 
@@ -49,7 +53,5 @@ public class DruidConfiguationSecondDataSource {
     public SqlSessionTemplate setSqlSessionTemplate(@Qualifier("secondSqlSessionFactory") SqlSessionFactory sqlSessionFactory) throws Exception {
         return new SqlSessionTemplate(sqlSessionFactory);
     }
-
-
 
 }

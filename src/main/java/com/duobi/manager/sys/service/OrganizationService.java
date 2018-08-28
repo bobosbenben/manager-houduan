@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional(value = "serviceTransactionManager",readOnly = true)
 public class OrganizationService extends TreeService<OrganizationDao, Organization, Long> {
 
     @Override

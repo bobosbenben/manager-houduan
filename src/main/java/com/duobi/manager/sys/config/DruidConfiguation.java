@@ -13,6 +13,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.TransactionManagementConfigurer;
 
 import javax.sql.DataSource;
 
@@ -22,6 +25,7 @@ import javax.sql.DataSource;
  *
  */
 @Configuration
+//@EnableTransactionManagement
 @MapperScan(basePackages = "com.duobi.manager.sys.dao", sqlSessionTemplateRef  = "serviceSqlSessionTemplate")
 public class DruidConfiguation {
 
@@ -39,7 +43,7 @@ public class DruidConfiguation {
 
     @Bean(name = "serviceTransactionManager")
     @Primary
-    public DataSourceTransactionManager setTransactionManager(@Qualifier("serviceDataSource") DataSource dataSource) {
+    public PlatformTransactionManager setTransactionManager(@Qualifier("serviceDataSource") DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
 
@@ -60,7 +64,9 @@ public class DruidConfiguation {
         return new SqlSessionTemplate(sqlSessionFactory);
     }
 
-
-
-
+//    @Bean("servicePlatformTransactionManager")
+//    @Override
+//    public PlatformTransactionManager annotationDrivenTransactionManager() {
+//        return new DataSourceTransactionManager(druidDataSource());
+//    }
 }

@@ -16,7 +16,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional(value = "serviceTransactionManager",readOnly = true)
 public class UserService extends CrudService<UserOrganizationDao, UserOrganization, Long> {
 
     @Autowired

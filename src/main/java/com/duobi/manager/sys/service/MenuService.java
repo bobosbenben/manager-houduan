@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional(value = "serviceTransactionManager",readOnly = true)
 public class MenuService extends TreeService<MenuDao, Menu, Long> {
 
     /**

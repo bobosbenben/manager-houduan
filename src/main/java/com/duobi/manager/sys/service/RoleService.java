@@ -18,7 +18,7 @@ import java.util.List;
 
 
 @Service
-@Transactional(readOnly = true)
+@Transactional(value = "serviceTransactionManager",readOnly = true)
 public class RoleService extends CrudService<RoleDao, Role, Long> {
 
     @Autowired

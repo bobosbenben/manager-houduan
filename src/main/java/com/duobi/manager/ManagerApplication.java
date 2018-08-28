@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @ServletComponentScan(value = "com.duobi.manager") //启用@WebServlet @WebFilter 注解
 //@MapperScan(basePackages = "com.duobi.manager")
-//@EnableTransactionManagement // 启用注解事务管理，等同于xml配置方式的 <tx:annotation-driven />
+@EnableTransactionManagement // 启用注解事务管理，等同于xml配置方式的 <tx:annotation-driven />
 @SpringBootApplication
 public class ManagerApplication {
 
