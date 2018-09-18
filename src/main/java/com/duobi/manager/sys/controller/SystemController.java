@@ -1,11 +1,9 @@
 package com.duobi.manager.sys.controller;
 
-import com.duobi.manager.sys.entity.Role;
 import com.duobi.manager.sys.entity.User;
 import com.duobi.manager.sys.entity.UserOrganization;
-import com.duobi.manager.sys.service.TestService;
+import com.duobi.manager.sys.service.RoleService;
 import com.duobi.manager.sys.shiro.FormAuthenticationFilter;
-import com.duobi.manager.sys.shiro.SystemAuthorizingRealm;
 import com.duobi.manager.sys.utils.ResponseJson;
 import com.duobi.manager.sys.utils.StringUtils;
 import com.duobi.manager.sys.utils.UserUtils;
@@ -17,15 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 public class SystemController {
-
-    @Autowired
-    private TestService testService;
 
     @RequestMapping(value = "/sys/login")
     public @ResponseBody Object login(HttpServletRequest request, Map<String, Object> map){
@@ -34,6 +28,7 @@ public class SystemController {
 
         User user = (User)SecurityUtils.getSubject().getPrincipal();
         if (null != user) {
+            user.setMenuList(UserUtils.getMenuTree());
             responseJson.setSuccess(true);
             responseJson.setMsg("您已经登录!");
             retData.put("loggedIn", true);
@@ -68,24 +63,6 @@ public class SystemController {
 
 //        SystemAuthorizingRealm.Principal principal = UserUtils.getPrincipal();
         User user = (User)SecurityUtils.getSubject().getPrincipal();
-
-        Role role = new Role();
-        role.setId(16L);
-        role.setName("测试事务的角色");
-        role.setSysData(false);
-        role.setUseable(true);
-        role.setCreateBy(user);
-        role.setCreateTime(new Date());
-        role.setUpdateBy(user);
-        role.setUpdateTime(new Date());
-        try {
-            testService.insertOne(role);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-
 
         if (null != user) {
             UserOrganization userOrganization = UserUtils.getUserOrganization();

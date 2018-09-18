@@ -19,13 +19,12 @@ import org.springframework.transaction.annotation.TransactionManagementConfigure
 
 import javax.sql.DataSource;
 
-
 /**
  * 数据库连接池&Mybatis配置类
  *
  */
 @Configuration
-//@EnableTransactionManagement
+@EnableTransactionManagement
 @MapperScan(basePackages = "com.duobi.manager.sys.dao", sqlSessionTemplateRef  = "serviceSqlSessionTemplate")
 public class DruidConfiguation {
 
@@ -43,7 +42,7 @@ public class DruidConfiguation {
 
     @Bean(name = "serviceTransactionManager")
     @Primary
-    public PlatformTransactionManager setTransactionManager(@Qualifier("serviceDataSource") DataSource dataSource) {
+    public PlatformTransactionManager serviceTransactionManager(@Qualifier("serviceDataSource") DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
 
@@ -64,9 +63,4 @@ public class DruidConfiguation {
         return new SqlSessionTemplate(sqlSessionFactory);
     }
 
-//    @Bean("servicePlatformTransactionManager")
-//    @Override
-//    public PlatformTransactionManager annotationDrivenTransactionManager() {
-//        return new DataSourceTransactionManager(druidDataSource());
-//    }
 }
