@@ -4,9 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.util.Date;
 
-/**
- * Created by chenjianjun on 15/7/21.
- */
 public class BaseModel implements java.io.Serializable {
 
     private Long id;
