@@ -19,10 +19,6 @@ import org.springframework.transaction.annotation.TransactionManagementConfigure
 
 import javax.sql.DataSource;
 
-/**
- * 数据库连接池&Mybatis配置类
- *
- */
 @Configuration
 @EnableTransactionManagement
 @MapperScan(basePackages = "com.duobi.manager.sys.dao", sqlSessionTemplateRef  = "serviceSqlSessionTemplate")
@@ -53,7 +49,7 @@ public class DruidConfiguation {
         /** 设置mybatis configuration 扫描路径 */
         bean.setConfigLocation(new ClassPathResource(MYBATIS_CONFIG));
         bean.setDataSource(dataSource);
-        bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:mybatis/mapper/sys/*.xml"));
+        bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:mybatis/mapper/mainDataSource/*/*.xml"));
         return bean.getObject();
     }
 

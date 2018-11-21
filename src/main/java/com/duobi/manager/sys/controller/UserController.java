@@ -15,9 +15,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
-/**
- * Created by chenjianjun on 16/8/4.
- */
 @Controller
 @RequestMapping("sys/user")
 public class UserController extends CrudController<UserService, UserOrganization, Long> {

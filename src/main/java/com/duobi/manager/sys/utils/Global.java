@@ -23,4 +23,8 @@ public class Global {
         return propertyReader.getSysModuleId();
     }
 
+    public static Long getKhjfModuleId(){
+        return propertyReader.getKhjfModuleId();
+    }
+
 }

@@ -61,6 +61,7 @@ public abstract class DataEntity<T, PK extends Serializable> extends BaseEntity<
 
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonIgnore
     public Date getCreateTime() {
         return createTime;
     }
@@ -70,6 +71,7 @@ public abstract class DataEntity<T, PK extends Serializable> extends BaseEntity<
     }
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonIgnore
     public Date getUpdateTime() {
         return updateTime;
     }

@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.duobi.manager.khjf.dao.ManualPointsRecordDao">
+	<!--<cache type="org.mybatis.caches.ehcache.EhcacheCache" />-->
+	<!--<cache></cache>-->
+
+	<sql id="manualPointsRecordColumns">
+		a.id,
+		a.customer_no,
+		a.account_no,
+		a.child_account_no,
+		a.card_no,
+		a.balance,
+		a.subject_no,
+		a.org_code,
+		a.date,
+		a.month,
+		a.year,
+		a.start_date,
+		a.end_date,
+		a.points_type_id,
+		a.value,
+		b.name AS points_type_name,
+		c.name AS customer_name,
+		c.identity_no AS customer_identity_no,
+		a.valid_flag,
+		a.teller_code,
+		a.status,
+		a.remarks,
+		a.create_by AS "createBy.id",
+		a.create_time,
+		a.update_by AS "updateBy.id",
+		a.update_time,
+		a.del_flag
+	</sql>
+
+	<sql id="manualPointsRecordJoins">
+		LEFT JOIN t_khjf_type b ON b.id = a.points_type_id
+		LEFT JOIN t_hxsj_customer_public_base c ON c.no = a.customer_no
+		LEFT JOIN t_sys_organization o ON a.org_code = o.code
+	</sql>
+
+	<select id="get" resultType="com.duobi.manager.khjf.entity.ManualPointsRecord">
+		SELECT
+		<include refid="manualPointsRecordColumns"/>
+		FROM t_khjf_manual_points_record a
+		<include refid="manualPointsRecordJoins" />
+		WHERE a.id = #{id} AND a.del_flag = #{DEL_FLAG_NORMAL}
+	</select>
+
+	<select id="getCardNoByAccountNo" resultType="java.lang.String">
+		SELECT
+		card_no
+		FROM t_hxsj_card_account a
+		WHERE a.account_no = #{accountNo}
+	</select>
+
+    <select id="getPointsTypeTypeById" resultType="java.lang.String">
+        SELECT
+        type
+        FROM t_khjf_type a
+        WHERE a.id = #{pointsTypeId} AND a.del_flag = FALSE
+    </select>
+
+    <select id="getAvailableStatus" resultType="java.lang.String">
+        SELECT
+          get_customer_points_record_available(#{pointsTypeId},#{startDate},#{endDate})
+    </select>
+
+	<select id="getAccountNoByCardNo" resultType="java.lang.String">
+		SELECT
+		account_no
+		FROM t_hxsj_card_account a
+		WHERE a.card_no = #{cardNo}
+	</select>
+
+	<select id="getOrgCodeByAccountNo" resultType="java.lang.String">
+		SELECT
+		org_code
+		FROM t_hxsj_deposit_account a
+		WHERE a.account_no = #{accountNo} limit 1
+	</select>
+
+	<select id="getCustomerNoByCardNoOrAccountNo" resultType="java.lang.String">
+		SELECT
+		customer_no
+		FROM t_hxsj_customer_account a
+		WHERE a.account_no = #{cardNoOrAccountNo}
+	</select>
+
+	<select id="getPointsTypeValueByPointsTypeId" resultType="java.lang.Double">
+		SELECT
+		get_customer_points_record_value(#{pointsTypeId},#{startDate},#{endDate})
+	</select>
+
+	<select id="findCount" resultType="java.lang.Long">
+		SELECT COUNT(0)
+		FROM t_khjf_manual_points_record a
+		<include refid="manualPointsRecordJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		<if test="customerIdentityNo != null and customerIdentityNo != '' ">
+			AND c.identity_no = #{customerIdentityNo}
+		</if>
+		<if test="customerName != null and customerName != '' ">
+			AND c.name = #{customerName}
+		</if>
+		<if test='accountNo != null '>
+			AND a.account_no = #{accountNo}
+		</if>
+		<if test='cardNo != null '>
+			AND a.card_no = #{cardNo}
+		</if>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+	</select>
+
+	<select id="findList" resultType="com.duobi.manager.khjf.entity.ManualPointsRecord">
+		SELECT
+		<include refid="manualPointsRecordColumns"/>
+		FROM t_khjf_manual_points_record a
+		<include refid="manualPointsRecordJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		<if test="customerIdentityNo != null and customerIdentityNo != '' ">
+			AND c.identity_no = #{customerIdentityNo}
+		</if>
+		<if test="customerName != null and customerName != '' ">
+			AND c.name = #{customerName}
+		</if>
+		<if test='accountNo != null '>
+			AND a.account_no = #{accountNo}
+		</if>
+		<if test='cardNo != null '>
+			AND a.card_no = #{cardNo}
+		</if>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		ORDER BY a.id
+		<if test="page != null and page.start >= 0 and page.pageSize > 0">
+			offset ${page.start} limit ${page.pageSize}
+		</if>
+	</select>
+
+	<insert id="insert">
+		<selectKey resultType="java.lang.Long"  order="AFTER" keyProperty="id" >
+			SELECT currval('t_khjf_manual_points_record_id_seq') AS id
+		</selectKey>
+		INSERT INTO t_khjf_manual_points_record(
+		customer_no,
+		account_no,
+		child_account_no,
+		card_no,
+		balance,
+		subject_no,
+		org_code,
+		date,
+		month,
+		year,
+		start_date,
+		end_date,
+		points_type_id,
+		valid_flag,
+		teller_code,
+		status,
+		value,
+		remarks,
+		create_by,
+		create_time,
+		update_by,
+		update_time
+		) VALUES (
+		#{customerNo},
+		#{accountNo},
+		#{childAccountNo},
+		#{cardNo},
+		#{balance},
+		#{subjectNo},
+		#{orgCode},
+		#{date},
+		#{month},
+		#{year},
+		#{startDate},
+		#{endDate},
+		#{pointsTypeId},
+		#{validFlag},
+		#{tellerCode},
+		#{status},
+		#{value},
+		#{remarks},
+		#{createBy.id},
+		#{createTime},
+		#{updateBy.id},
+		#{updateTime}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE t_khjf_manual_points_record
+		<set>
+			<if test="customerNo != null and customerNo != ''">
+				customer_no = #{customerNo},
+			</if>
+			<if test="accountNo != null and accountNo != ''">
+				account_no = #{accountNo},
+			</if>
+			<if test="childAccountNo != null and childAccountNo != ''">
+				child_account_no = #{childAccountNo},
+			</if>
+			<if test="cardNo != null and cardNo != ''">
+				card_no	= #{cardNo},
+			</if>
+			<if test="balance != null ">
+				balance	= #{balance},
+			</if>
+			<if test="subjectNo != null and subjectNo != ''">
+				subject_no = #{subjectNo},
+			</if>
+			<if test="orgCode != null and orgCode != ''">
+				org_code	= #{orgCode},
+			</if>
+			<if test="date != null ">
+				date = #{date},
+			</if>
+			<if test="month != null and month != ''">
+				month = #{month},
+			</if>
+			<if test="year != null and year != ''">
+				year = #{year},
+			</if>
+			<if test="startDate != null ">
+				start_date = #{startDate},
+			</if>
+			<if test="endDate != null and endDate != ''">
+				end_date = #{endDate},
+			</if>
+			<if test="pointsTypeId != null">
+				points_type_id = #{pointsTypeId},
+			</if>
+			<if test="validFlag != null and validFlag != ''">
+				valid_flag = #{validFlag},
+			</if>
+			<if test="tellerCode != null and tellerCode != ''">
+				teller_code = #{tellerCode},
+			</if>
+			<if test="status != null and status != ''">
+				status = #{status},
+			</if>
+			<if test="remarks != null">
+				remarks = #{remarks},
+			</if>
+			<if test="delFlag != null">
+				del_flag = #{delFlag},
+			</if>
+			<if test="updateBy != null and updateBy.id != null">
+				update_by = #{updateBy.id},
+			</if>
+			<if test="updateTime != null">
+				update_time = #{updateTime}
+			</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<update id="auditManualPointsRecord">
+		UPDATE t_khjf_manual_points_record SET status = #{MANUAL_POINTS_RECORD_AUDITED} WHERE id = #{id} AND del_flag = #{DEL_FLAG_NORMAL}
+	</update>
+
+	<update id="denyManualPointsRecord">
+		UPDATE t_khjf_manual_points_record SET status = #{MANUAL_POINTS_RECORD_NOT_AUDITED} WHERE id = #{id} AND del_flag = #{DEL_FLAG_NORMAL}
+	</update>
+
+	<delete id="delete">
+		DELETE FROM t_khjf_manual_points_record WHERE id = #{id}
+	</delete>
+
+	<insert id="insertToCustomerPointsRecord">
+		<selectKey resultType="java.lang.Long"  order="AFTER" keyProperty="id" >
+			SELECT currval('t_khjf_customer_points_record_id_seq') AS id
+		</selectKey>
+		INSERT INTO t_khjf_customer_points_record(
+		customer_no,
+		account_no,
+		child_account_no,
+		card_no,
+		balance,
+		subject_no,
+		org_code,
+		date,
+		month,
+		year,
+		start_date,
+		end_date,
+		points_type_id,
+		valid_flag,
+		teller_code,
+		value,
+		remarks,
+		create_by,
+		create_time,
+		update_by,
+		update_time
+		) VALUES (
+		#{customerNo},
+		#{accountNo},
+		#{childAccountNo},
+		#{cardNo},
+		#{balance},
+		#{subjectNo},
+		#{orgCode},
+		#{date},
+		#{month},
+		#{year},
+		#{startDate},
+		#{endDate},
+		#{pointsTypeId},
+		#{validFlag},
+		#{tellerCode},
+		#{value},
+		#{remarks},
+		#{createBy.id},
+		#{createTime},
+		#{updateBy.id},
+		#{updateTime}
+		)
+	</insert>
+	
+</mapper>

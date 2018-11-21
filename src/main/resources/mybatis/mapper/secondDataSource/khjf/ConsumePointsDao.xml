@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.duobi.manager.khjf.dao.ConsumePointsDao">
+	<!--<cache type="org.mybatis.caches.ehcache.EhcacheCache" />-->
+	<!--<cache></cache>-->
+
+	<sql id="consumePointsColumns">
+		a.id,
+		a.customer_no,
+		c.name AS customer_name,
+		a.identity_no,
+		a.org_code,
+		a.all_org_points,
+		a.current_org_points,
+		a.consume_all_org_points,
+		a.points_value,
+		a.valid_flag,
+		a.date,
+		a.remarks,
+		a.create_by AS "createBy.id",
+		a.create_time,
+		a.update_by AS "updateBy.id",
+		a.update_time,
+		a.del_flag
+	</sql>
+
+	<sql id="consumePointsJoins">
+		LEFT JOIN t_hxsj_customer_public_base c ON c.no = a.customer_no
+		LEFT JOIN t_sys_organization o ON a.org_code = o.code
+	</sql>
+
+	<select id="get" resultType="com.duobi.manager.khjf.entity.ConsumePoints">
+		SELECT
+		<include refid="consumePointsColumns"/>
+		FROM t_khjf_consume_points a
+		<include refid="consumePointsJoins" />
+		WHERE a.id = #{id} AND a.del_flag = #{DEL_FLAG_NORMAL}
+	</select>
+
+	<select id="getKhjfGlobalParameter" parameterType="com.duobi.manager.khjf.entity.KhjfParameter" resultType="com.duobi.manager.khjf.entity.KhjfParameter">
+		SELECT
+		*
+		FROM t_khjf_global_parameter a
+		WHERE a.name = #{name} AND a.del_flag = #{DEL_FLAG_NORMAL} AND a.valid_flag = #{VALID_FLAG_NORMAL}
+	</select>
+
+	<update id="updateValidFlagOfKhjfGlobalParameter" parameterType="com.duobi.manager.khjf.entity.KhjfParameter">
+		UPDATE t_khjf_global_parameter
+		<set>
+			<if test="validFlag != null ">
+				valid_flag = #{validFlag}
+			</if>
+		</set>
+		WHERE name = #{name} AND del_flag = #{DEL_FLAG_NORMAL}
+	</update>
+
+	<select id="getCustomerConsumePointsInGivenOrg" parameterType="com.duobi.manager.khjf.entity.CustomerPointsRecord" resultType="com.duobi.manager.khjf.entity.ConsumePoints">
+		SELECT
+		a.customer_no,
+		b.name,
+		b.identity_no,
+		a.org_code,
+		sum(value) AS current_org_points
+		FROM t_khjf_customer_points_record a LEFT JOIN t_hxsj_customer_public_base b on a.customer_no = b.no
+		WHERE a.valid_flag = #{VALID_FLAG_NORMAL} AND a.org_code = #{orgCode} AND a.del_flag = #{DEL_FLAG_NORMAL} AND b.identity_no = #{customerIdentityNo}
+		GROUP BY a.customer_no,b.name,b.identity_no,a.org_code
+	</select>
+
+	<select id="getCustomerAlreadyConsumedPointsInGivenOrg" parameterType="com.duobi.manager.khjf.entity.CustomerPointsRecord" resultType="com.duobi.manager.khjf.entity.ConsumePoints">
+		SELECT
+		a.customer_no,
+		b.name,
+		b.identity_no,
+		a.org_code,
+		sum(points_value) AS points_value
+		FROM t_khjf_consume_points a LEFT JOIN t_hxsj_customer_public_base b on a.customer_no = b.no
+		WHERE a.valid_flag = #{VALID_FLAG_NORMAL} AND a.org_code = #{orgCode} AND a.del_flag = #{DEL_FLAG_NORMAL} AND b.identity_no = #{customerIdentityNo}
+		GROUP BY a.customer_no,b.name,b.identity_no,a.org_code
+	</select>
+
+	<select id="getCustomerAlreadyConsumedPointsInAllOrg" parameterType="com.duobi.manager.khjf.entity.CustomerPointsRecord" resultType="com.duobi.manager.khjf.entity.ConsumePoints">
+		SELECT
+		a.customer_no,
+		b.name,
+		b.identity_no,
+		sum(points_value) AS points_value
+		FROM t_khjf_consume_points a LEFT JOIN t_hxsj_customer_public_base b on a.customer_no = b.no
+		WHERE a.valid_flag = #{VALID_FLAG_NORMAL} AND a.del_flag = #{DEL_FLAG_NORMAL} AND b.identity_no = #{customerIdentityNo}
+		GROUP BY a.customer_no,b.name,b.identity_no
+	</select>
+
+	<select id="getCustomerConsumePointsInAllOrg" parameterType="com.duobi.manager.khjf.entity.CustomerPointsRecord" resultType="com.duobi.manager.khjf.entity.ConsumePoints">
+		SELECT
+		a.customer_no,
+		b.name,
+		b.identity_no,
+		sum(value) AS all_org_points
+		FROM t_khjf_customer_points_record a LEFT JOIN t_hxsj_customer_public_base b on a.customer_no = b.no
+		WHERE a.valid_flag = #{VALID_FLAG_NORMAL} AND a.del_flag = #{DEL_FLAG_NORMAL} AND b.identity_no = #{customerIdentityNo}
+		GROUP BY a.customer_no,b.name,b.identity_no
+	</select>
+
+	<select id="getCustomerNameByIdentityNo" resultType="java.lang.String">
+		SELECT
+		a.name
+		FROM t_hxsj_customer_public_base a
+		WHERE a.identity_no = #{identityNo}
+	</select>
+
+	<select id="getCustomerNoByIdentityNo" resultType="java.lang.String">
+		SELECT
+		a.no
+		FROM t_hxsj_customer_public_base a
+		WHERE a.identity_no = #{identityNo} limit 1
+	</select>
+
+	<select id="findCount" resultType="java.lang.Long">
+		SELECT COUNT(0)
+		FROM t_khjf_consume_points a
+		<include refid="consumePointsJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} AND valid_flag = #{VALID_FLAG_NORMAL}
+		<if test="identityNo != null and identityNo != '' ">
+			AND c.identity_no = #{customerIdentityNo}
+		</if>
+		<if test="customerName != null and customerName != '' ">
+			AND c.name = #{customerName}
+		</if>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+	</select>
+
+	<select id="findList" resultType="com.duobi.manager.khjf.entity.ConsumePoints">
+		SELECT
+		<include refid="consumePointsColumns"/>
+		FROM t_khjf_consume_points a
+		<include refid="consumePointsJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} AND valid_flag = #{VALID_FLAG_NORMAL}
+		<if test="identityNo != null and identityNo != '' ">
+			AND c.identity_no = #{customerIdentityNo}
+		</if>
+		<if test="customerName != null and customerName != '' ">
+			AND c.name = #{customerName}
+		</if>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		ORDER BY a.id
+		<if test="page != null and page.start >= 0 and page.pageSize > 0">
+			offset ${page.start} limit ${page.pageSize}
+		</if>
+	</select>
+
+	<insert id="insert">
+		<selectKey resultType="java.lang.Long"  order="AFTER" keyProperty="id" >
+			SELECT currval('t_khjf_consume_points_id_seq') AS id
+		</selectKey>
+		INSERT INTO t_khjf_consume_points(
+		customer_no,
+		identity_no,
+		org_code,
+		all_org_points,
+		current_org_points,
+		consume_all_org_points,
+		points_value,
+		valid_flag,
+		date,
+		remarks,
+		create_by,
+		create_time,
+		update_by,
+		update_time
+		) VALUES (
+		#{customerNo},
+		#{identityNo},
+		#{orgCode},
+		#{allOrgPoints},
+		#{currentOrgPoints},
+		#{consumeAllOrgPoints},
+		#{pointsValue},
+		#{validFlag},
+		#{date},
+		#{remarks},
+		#{createBy.id},
+		#{createTime},
+		#{updateBy.id},
+		#{updateTime}
+		)
+	</insert>
+
+	<insert id="insertKhjfGlobalParameter">
+		<selectKey resultType="java.lang.Long"  order="AFTER" keyProperty="id" >
+			SELECT currval('t_khjf_global_parameter_id_seq') AS id
+		</selectKey>
+		INSERT INTO t_khjf_global_parameter(
+		name,
+		value,
+		valid_flag,
+		remarks,
+		create_by,
+		create_time,
+		update_by,
+		update_time
+		) VALUES (
+		#{name},
+		#{value},
+		#{validFlag},
+		#{remarks},
+		#{createBy.id},
+		#{createTime},
+		#{updateBy.id},
+		#{updateTime}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE t_khjf_consume_points
+		<set>
+			<if test="customerNo != null and customerNo != ''">
+				customer_no = #{customerNo},
+			</if>
+			<if test="identityNo != null and identityNo != ''">
+				identity_no = #{identityNo},
+			</if>
+			<if test="orgCode != null and orgCode != ''">
+				org_code = #{orgCode},
+			</if>
+			<if test="allOrgPoints != null ">
+				all_org_points	= #{allOrgPoints},
+			</if>
+			<if test="currentOrgPoints != null ">
+				current_org_points	= #{currentOrgPoints},
+			</if>
+			<if test="consumeAllOrgPoints != null ">
+				consume_all_org_points = #{consumeAllOrgPoints},
+			</if>
+			<if test="pointsValue != null ">
+				points_value = #{pointsValue},
+			</if>
+			<if test="valid_flag != null and valid_flag != ''">
+				valid_flag = #{validFlag},
+			</if>
+			<if test="date != null ">
+				date = #{date},
+			</if>
+			<if test="remarks != null">
+				remarks = #{remarks},
+			</if>
+			<if test="delFlag != null">
+				del_flag = #{delFlag},
+			</if>
+			<if test="updateBy != null and updateBy.id != null">
+				update_by = #{updateBy.id},
+			</if>
+			<if test="updateTime != null">
+				update_time = #{updateTime}
+			</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE t_khjf_consume_points SET del_flag = #{DEL_FLAG_DELETE} WHERE id = #{id}
+	</update>
+
+	
+</mapper>

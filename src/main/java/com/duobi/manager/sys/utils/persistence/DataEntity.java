@@ -51,6 +51,7 @@ public abstract class DataEntity<T, PK extends Serializable> extends com.duobi.m
         super.preUpdate();
     }
 
+    @JsonIgnore
     public User getCreateBy() {
         return createBy;
     }
@@ -59,6 +60,7 @@ public abstract class DataEntity<T, PK extends Serializable> extends com.duobi.m
         this.createBy = createBy;
     }
 
+    @JsonIgnore
     public User getUpdateBy() {
         return updateBy;
     }

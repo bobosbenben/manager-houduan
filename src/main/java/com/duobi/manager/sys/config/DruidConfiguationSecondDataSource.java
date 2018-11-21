@@ -14,13 +14,12 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.annotation.TransactionManagementConfigurer;
 
 import javax.sql.DataSource;
 
 @Configuration
 @EnableTransactionManagement
-@MapperScan(basePackages = "com.duobi.manager.sys.testDao", sqlSessionTemplateRef  = "secondSqlSessionTemplate")
+@MapperScan(basePackages = {"com.duobi.manager.khjf.dao"},sqlSessionTemplateRef  = "secondSqlSessionTemplate")
 public class DruidConfiguationSecondDataSource {
 
     private static String MYBATIS_CONFIG = "mybatis/mybatis-config.xml";
@@ -45,7 +44,7 @@ public class DruidConfiguationSecondDataSource {
         /** 设置mybatis configuration 扫描路径 */
         bean.setConfigLocation(new ClassPathResource(MYBATIS_CONFIG));
         bean.setDataSource(dataSource);
-        bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:mybatis/mapper/second/*.xml"));
+        bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:mybatis/mapper/secondDataSource/*/*.xml"));
         return bean.getObject();
     }
 

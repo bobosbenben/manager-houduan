@@ -15,6 +15,9 @@ public class PropertyReader {
     @Value("${sysModuleId}")
     private Long sysModuleId;
 
+    @Value("${khjfModuleId}")
+    private Long khjfModuleId;
+
     public int getPageSize() {
         return pageSize;
     }
@@ -37,5 +40,13 @@ public class PropertyReader {
 
     public void setSysModuleId(Long sysModuleId) {
         this.sysModuleId = sysModuleId;
+    }
+
+    public Long getKhjfModuleId() {
+        return khjfModuleId;
+    }
+
+    public void setKhjfModuleId(Long khjfModuleId) {
+        this.khjfModuleId = khjfModuleId;
     }
 }

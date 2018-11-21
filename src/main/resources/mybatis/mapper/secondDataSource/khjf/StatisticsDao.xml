@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.duobi.manager.khjf.dao.StatisticsDao">
+	<!--<cache type="org.mybatis.caches.ehcache.EhcacheCache" />-->
+	<!--<cache></cache>-->
+
+	<select id="findCount" resultType="java.lang.Long">
+		SELECT COUNT(0)
+		FROM (select a.org_code,sum(a.value) as points_value,count(distinct a.account_no) as account_no_count,count(distinct a.card_no) as card_no_count,count(distinct a.customer_no) as customer_no_count from t_khjf_customer_points_record a where a.valid_flag = '0' and a.del_flag = false group by a.org_code union select '78001' as org_code, sum(value),count(distinct account_no),count(distinct card_no),count(distinct customer_no) from t_khjf_customer_points_record where valid_flag = '0' and del_flag = false) as t left join t_sys_organization o on t.org_code = o.code
+		WHERE 1=1
+		<if test="orgCode != null and orgCode != '' ">
+			AND t.org_code = #{orgCode}
+		</if>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+	</select>
+
+	<select id="findList" resultType="com.duobi.manager.khjf.entity.Statistics">
+		SELECT
+		o.id,o.name AS org_name,t.org_code,t.points_value,t.account_no_count,t.card_no_count,t.customer_no_count
+		FROM (select a.org_code,sum(a.value) as points_value,count(distinct a.account_no) as account_no_count,count(distinct a.card_no) as card_no_count,count(distinct a.customer_no) as customer_no_count from t_khjf_customer_points_record a where a.valid_flag = '0' and a.del_flag = false group by a.org_code union select '78001' as org_code, sum(value),count(distinct account_no),count(distinct card_no),count(distinct customer_no) from t_khjf_customer_points_record where valid_flag = '0' and del_flag = false) as t left join t_sys_organization o on t.org_code = o.code
+		WHERE 1=1
+		<if test="orgCode != null and orgCode != '' ">
+			AND t.org_code = #{orgCode}
+		</if>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		ORDER BY t.org_code
+		<if test="page != null and page.start >= 0 and page.pageSize > 0">
+			offset ${page.start} limit ${page.pageSize}
+		</if>
+	</select>
+
+    <select id="getOrgConsumedPointsValue" resultType="com.duobi.manager.khjf.entity.Statistics">
+        SELECT o.id,o.name as org_name,t.org_code,t.consumed_points_value,t.customer_no_count FROM (SELECT org_code,sum(points_value) AS consumed_points_value,count(distinct customer_no) AS customer_no_count
+        FROM t_khjf_consume_points
+        WHERE valid_flag = '0' AND del_flag = false GROUP BY org_code
+        UNION
+          SELECT '78001' AS org_code,sum(points_value),count(distinct customer_no)
+          FROM t_khjf_consume_points
+          WHERE valid_flag = '0' AND del_flag = false) as t
+		LEFT JOIN t_sys_organization o on t.org_code = o.code;
+    </select>
+	
+</mapper>

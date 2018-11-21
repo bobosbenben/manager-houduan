@@ -4,12 +4,18 @@ import com.duobi.manager.sys.utils.Digests;
 import com.duobi.manager.sys.utils.Encodes;
 import com.duobi.manager.sys.utils.Global;
 import jdk.nashorn.api.tree.GotoTree;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static com.duobi.manager.sys.utils.PasswordUtils.HASH_INTERATIONS;
 
@@ -24,18 +30,26 @@ public class ManagerApplicationTests {
 
 	@Test
 	public void contextLoads() {
-//	    String encrytPassword = "c90df626ad909b4da746e364d81231c1f9e553d95c6c61e863abfa61";
-//        Boolean b = validatePassword("1234567",encrytPassword);
-//        System.out.println("比对结果："+b);
+//        String[] arrayA = new String[] { "C", "B", "A", "D", "E", "F", "A" };
+//        String[] arrayB = new String[] { "B", "D", "F", "G", "H", "K", "A" };
+//        List<String> listA = Arrays.asList(arrayA);
+//        List<String> listB = Arrays.asList(arrayB);
+//        //2个数组取并集
+//        System.out.println(ArrayUtils.toString(CollectionUtils.union(listA, listB)));
+//
+//
+//        Set elts = new HashSet(listA);
+////        elts.addAll(listB);
+//
+//        Iterator it = elts.iterator();
+//        while(it.hasNext()) {
+//            Object obj = it.next();
+//            System.out.println(obj.toString());
+//        }
 
-        ChildClass o = new ChildClass();
-        o.functionB();
-
-        FatherClass b = new FatherClass();
-        b.functionA();
-
-        FatherClass c = new ChildClass();
-        c.functionA();
+        String t = "ttttt";
+        if (t.equals(null)) System.out.println("equal");
+        else System.out.println("不相等");
 
 	}
 

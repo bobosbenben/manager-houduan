@@ -258,7 +258,12 @@ public class UserUtils {
         }
         if (parentMenuList.size() > 0) {
             //合并
-            List<Menu> unionMenuList = (List<Menu>) CollectionUtils.union(parentMenuList, menuList);
+//            List<Menu> unionMenuList = (List<Menu>) CollectionUtils.union(parentMenuList, menuList); //使用CollectionUtils.union会导致hash排序，输出结果不一致
+            List<Menu> unionMenuList ;
+            for (int i=0;i<menuList.size();i++){
+                parentMenuList.add(menuList.get(i));
+            }
+            unionMenuList = parentMenuList;
             menuTree = TreeEntityUtils.listToTree((List)unionMenuList);
         }
         return menuTree;

@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.duobi.manager.khjf.dao.PointsTypeDao">
+	<!--<cache type="org.mybatis.caches.ehcache.EhcacheCache" />-->
+	<!--<cache></cache>-->
+
+	<sql id="pointsTypeColumns">
+		a.id,
+		a.name,
+		a.short_name,
+		b.value,
+		b.start_date,
+		b.end_date,
+		a.all_org_valid,
+		a.type,
+		b.valid_flag ,
+		a.remarks,
+		c.available_status,
+		a.create_by AS "createBy.id",
+		a.create_time,
+		a.update_by AS "updateBy.id",
+		a.update_time,
+		a.del_flag
+	</sql>
+
+	<sql id="pointsTypeJoins">
+		LEFT JOIN t_khjf_points_type_change b ON a.id = b.points_type_id
+		LEFT JOIN t_khjf_points_type_available c ON a.id = c.points_type_id
+	</sql>
+
+	<select id="get" parameterType="com.duobi.manager.khjf.entity.PointsType" resultType="com.duobi.manager.khjf.entity.PointsType">
+		SELECT
+		<include refid="pointsTypeColumns"/>
+		FROM t_khjf_type a
+		<include refid="pointsTypeJoins" />
+		WHERE a.id = #{id} AND a.del_flag = #{DEL_FLAG_NORMAL} AND b.valid_flag=TRUE
+	</select>
+
+	<select id="getAllHandyPointsType" parameterType="com.duobi.manager.khjf.entity.PointsType" resultType="com.duobi.manager.khjf.entity.PointsType">
+		SELECT
+		<include refid="pointsTypeColumns"/>
+		FROM t_khjf_type a
+		<include refid="pointsTypeJoins" />
+		WHERE a.type=#{TYPE_MANUAL} AND a.del_flag = #{DEL_FLAG_NORMAL} AND available_status = #{AVAILABLE_STATUS_NORMAL}
+		ORDER BY a.id;
+	</select>
+
+	<select id="findCount" resultType="java.lang.Long">
+		SELECT COUNT(0)
+		FROM t_khjf_type a
+		<include refid="pointsTypeJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} AND b.valid_flag=TRUE AND c.valid_flag=TRUE
+		<if test="name != null and name != '' ">
+			AND a.name = #{name}
+		</if>
+		<!-- 数据范围过滤 -->
+	</select>
+
+	<select id="findList" parameterType="com.duobi.manager.khjf.entity.PointsType" resultType="com.duobi.manager.khjf.entity.PointsType">
+		SELECT
+		<include refid="pointsTypeColumns"/>
+		FROM t_khjf_type a
+		<include refid="pointsTypeJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} AND b.valid_flag=TRUE AND c.valid_flag=TRUE
+		<if test="name != null and name != '' ">
+			AND a.name = #{name}
+		</if>
+		<!-- 数据范围过滤 -->
+		ORDER BY a.id
+	</select>
+
+	<select id="getHandleConfigByPointsTypeId" resultType="com.duobi.manager.khjf.entity.HandleConfig">
+		SELECT id,points_type_id,start_date,end_date,next_start_date,next_end_date,execute_type,del_flag
+		FROM t_khjf_handle_config a
+		WHERE a.points_type_id = #{id} AND a.del_flag = #{DEL_FLAG_NORMAL}
+	</select>
+
+	<insert id="insert">
+		<selectKey resultType="java.lang.Long"  order="AFTER" keyProperty="id" >
+			SELECT currval('t_khjf_type_id_seq') AS id
+		</selectKey>
+		INSERT INTO t_khjf_type(
+		name,
+		short_name,
+		all_org_valid,
+		type,
+		remarks,
+		create_by,
+		create_time,
+		update_by,
+		update_time,
+		del_flag
+		) VALUES (
+		#{name},
+		#{shortName},
+		#{allOrgValid},
+		#{type},
+		#{remarks},
+		#{createBy.id},
+		#{createTime},
+		#{updateBy.id},
+		#{updateTime},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE t_khjf_type
+		<set>
+			<if test="name != null and name != ''">
+				name = #{name},
+			</if>
+			<if test="shortName != null and shortName != ''">
+				short_name = #{shortName},
+			</if>
+			<if test="allOrgValid != null">
+				all_org_valid = #{allOrgValid},
+			</if>
+			<if test="type != null">
+				type = #{type},
+			</if>
+			<if test="remarks != null">
+				remarks = #{remarks},
+			</if>
+			<if test="delFlag != null">
+				del_flag = #{delFlag},
+			</if>
+			<if test="availableStatus != null">
+				available_status = #{availableStatus},
+			</if>
+			<if test="updateBy != null and updateBy.id != null">
+				update_by = #{updateBy.id},
+			</if>
+			<if test="updateTime != null">
+				update_time = #{updateTime}
+			</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE t_khjf_type SET del_flag = TRUE WHERE id = #{id}
+	</update>
+
+	<select id="getValidPointsTypeChangeByPointsTypeId" resultType="com.duobi.manager.khjf.entity.PointsTypeChange" parameterType="com.duobi.manager.khjf.entity.PointsType">
+		SELECT *
+		FROM t_khjf_points_type_change WHERE points_type_id = #{id} AND valid_flag = TRUE AND del_flag = #{DEL_FLAG_NORMAL}
+	</select>
+
+	<select id="getCurrentAvailableStatusByPointsTypeId" resultType="com.duobi.manager.khjf.entity.PointsTypeChange" parameterType="com.duobi.manager.khjf.entity.PointsType">
+		SELECT *
+		FROM t_khjf_points_type_available WHERE points_type_id = #{id} AND valid_flag = TRUE AND del_flag = #{DEL_FLAG_NORMAL}
+	</select>
+
+	<delete id="deletePointsTypeChangeById">
+		DELETE FROM t_khjf_points_type_change WHERE id=#{id}
+	</delete>
+
+	<delete id="deletePointsTypeAvailableById">
+		DELETE FROM t_khjf_points_type_available WHERE id=#{id}
+	</delete>
+
+	<update id="updatePointsTypeChangeById">
+		UPDATE t_khjf_points_type_change
+		<set>
+			<if test="startDate != null">
+				start_date = #{startDate},
+			</if>
+			<if test="endDate != null">
+				end_date = #{endDate},
+			</if>
+			<if test="value != null">
+				value = #{value},
+			</if>
+			<if test="remarks != null">
+				remarks = #{remarks},
+			</if>
+			<if test="validFlag != null">
+				valid_flag = #{validFlag},
+			</if>
+			<if test="updateBy != null and updateBy.id != null">
+				update_by = #{updateBy.id},
+			</if>
+			<if test="updateTime != null">
+				update_time = #{updateTime}
+			</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<update id="updatePointsTypeAvailableById">
+		UPDATE t_khjf_points_type_available
+		<set>
+			<if test="startDate != null">
+				start_date = #{startDate},
+			</if>
+			<if test="endDate != null">
+				end_date = #{endDate},
+			</if>
+			<if test="availableStatus != null">
+				available_status = #{available},
+			</if>
+			<if test="remarks != null">
+				remarks = #{remarks},
+			</if>
+			<if test="validFlag != null">
+				valid_flag = #{validFlag},
+			</if>
+			<if test="updateBy != null and updateBy.id != null">
+				update_by = #{updateBy.id},
+			</if>
+			<if test="updateTime != null">
+				update_time = #{updateTime}
+			</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<insert id="insertPointsTypeChange">
+		<selectKey resultType="java.lang.Long"  order="AFTER" keyProperty="id" >
+			SELECT currval('t_khjf_points_type_change_id_seq') AS id
+		</selectKey>
+		INSERT INTO t_khjf_points_type_change(
+		points_type_id,
+		value,
+		start_date,
+		end_date,
+		valid_flag,
+		remarks,
+		create_by,
+		create_time,
+		update_by,
+		update_time,
+		del_flag
+		) VALUES (
+		#{pointsTypeId},
+		#{value},
+		#{startDate},
+		#{endDate},
+		#{validFlag},
+		#{remarks},
+		#{createBy.id},
+		#{createTime},
+		#{updateBy.id},
+		#{updateTime},
+		#{delFlag}
+		)
+	</insert>
+
+	<insert id="insertPointsTypeAvailable">
+		<selectKey resultType="java.lang.Long"  order="AFTER" keyProperty="id" >
+			SELECT currval('t_khjf_points_type_available_id_seq') AS id
+		</selectKey>
+		INSERT INTO t_khjf_points_type_available(
+		points_type_id,
+		available_status,
+		start_date,
+		end_date,
+		valid_flag,
+		remarks,
+		create_by,
+		create_time,
+		update_by,
+		update_time,
+		del_flag
+		) VALUES (
+		#{pointsTypeId},
+		#{availableStatus},
+		#{startDate},
+		#{endDate},
+		#{validFlag},
+		#{remarks},
+		#{createBy.id},
+		#{createTime},
+		#{updateBy.id},
+		#{updateTime},
+		#{delFlag}
+		)
+	</insert>
+	
+</mapper>
