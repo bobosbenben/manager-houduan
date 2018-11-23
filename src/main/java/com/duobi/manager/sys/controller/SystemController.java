@@ -76,7 +76,8 @@ public class SystemController {
             retData.put("loggedIn", true);
             retData.put("userInfo", userOrganization);
             responseJson.setData(retData);
-        } else {
+        }
+        else {//这里肯定不会被执行到，如果执行到，就是系统出现了问题
             responseJson.setSuccess(false);
             responseJson.setMsg("登录失败!");
             retData.put("loggedIn", false);

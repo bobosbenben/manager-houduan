@@ -46,9 +46,9 @@ public class FormAuthenticationFilter extends org.apache.shiro.web.filter.authc.
     /**
      * 登录成功之后跳转URL
      */
-    public String getSuccessUrl() {
-        return super.getSuccessUrl();
-    }
+//    public String getSuccessUrl() {
+//        return super.getSuccessUrl();
+//    }
 
 
     @Override

@@ -16,6 +16,9 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 配置过滤规则，shiro自带的过滤不灵活，每次新增模块都需要在shiro配置类中增加模块的url
+ */
 @Order(1)
 @WebFilter(filterName = "checkLoginStatusFilter", urlPatterns = "/*")
 public class CheckLoginStatusFilter implements Filter {
